@@ -1,0 +1,83 @@
+#!/usr/bin/env ruby
+$:.unshift File.expand_path('../../lib', __FILE__)
+
+require 'optparse'
+
+require 'rack'
+
+require 'git-site'
+
+banner = <<BANNER
+Serves static content from a git repo directly.
+
+Usage: #{File.basename $0} [options]
+BANNER
+
+DEFAULTS = {
+  host: 'localhost',
+  port: 4567,
+  server: nil,
+  repo: ENV['GIT_DIR'] || Dir.pwd,
+  branch: 'master',
+  index: 'index.html',
+}
+
+# Transform into struct
+conf = Struct.new(*DEFAULTS.keys).new.tap{|o|DEFAULTS.each_pair{|k,v|o[k]=v}}
+
+parser = OptionParser.new do |opts|
+  opts.banner = banner
+
+  opts.separator ""
+  opts.separator "Rack options:"
+
+  opts.on("-s", "--server SERVER", "serve using SERVER (thin/puma/webrick/mongrel)") do |server|
+    conf.server = server
+  end
+
+  opts.on("-p", "--port PORT", "Bind port (default #{conf.port}).") do |port|
+    conf.port = port.to_i
+  end
+
+  opts.on("-o", "--host HOST", "Hostname or IP address to listen on (default #{conf.host}).") do |host|
+    conf.host = host
+  end
+
+  opts.separator ""
+  opts.separator "App options:"
+
+  opts.on("-r", "--repo PATH", "Path to the git repo (default: #{conf.repo})") do |path|
+    conf.repo = path
+  end
+
+  opts.on("-b", "--branch BRANCH", "Branch to use (default: #{conf.branch}).") do |branch|
+    conf.branch = branch
+  end
+
+  opts.on("-i", "--index FILENAME", "Name of the index file (default: #{conf.index}).") do |filename|
+    conf.index = filename
+  end
+
+  opts.separator ""
+  opts.separator "Common options:"
+
+  opts.on_tail("-h", "-?", "--help", "Show this message") do
+    puts opts
+    exit
+  end
+end
+
+begin
+  parser.parse!
+rescue OptionParser::InvalidOption
+  warn $!.message
+  abort "try 'git-webserver --help' for more information"
+end
+
+conf.repo = Rugged::Repository.discover(conf.repo)
+
+Rack::Server.start(
+  app: GitSite.new(conf),
+  Port: conf.port,
+  Host: conf.host,
+)
