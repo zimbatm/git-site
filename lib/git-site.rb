@@ -77,7 +77,7 @@ class GitSite
 
   def lookup_type(path, content)
     mime = MimeMagic.by_path(path) || MimeMagic.by_magic(content)
-    mime ? mime.type : 'application/octet-stream'
+    mime ? mime.type : 'text/plain'
   end
 
   def normalized_path(path)
