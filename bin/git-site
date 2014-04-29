@@ -13,7 +13,7 @@ Serves static content from a git repo directly.
 Usage: #{File.basename $0} [options]
 BANNER
 
-DEFAULTS = {
+DEFAULT = {
   host: 'localhost',
   port: 4567,
   server: nil,
@@ -23,7 +23,7 @@ DEFAULTS = {
 }
 
 # Transform into struct
-conf = Struct.new(*DEFAULTS.keys).new.tap{|o|DEFAULTS.each_pair{|k,v|o[k]=v}}
+conf = Struct.new(*DEFAULT.keys).new(*DEFAULT.values)
 
 parser = OptionParser.new do |opts|
   opts.banner = banner
