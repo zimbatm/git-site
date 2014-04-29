@@ -1,8 +1,8 @@
 git-site - Service git content statically
 =========================================
 
-git-site
-========
+STATUS: Alpha
+=============
 
 Micro webserver that serves git data directly from the repo.
 
