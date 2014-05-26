@@ -8,9 +8,11 @@ module GitSite
   class Server
     # Default config
     DEFAULT = {
-      host: 'localhost', # rack config
-      port: 4567,        # rack config
+      # rack config
       server: nil,
+      host: 'localhost',
+      port: 4567,
+
       repo: ENV['GIT_DIR'] || Dir.pwd,
       branch: 'master',
       index: 'index.html',

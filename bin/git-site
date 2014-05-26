@@ -62,13 +62,14 @@ begin
   parser.parse!
 rescue OptionParser::InvalidOption
   warn $!.message
-  abort "try 'git-webserver --help' for more information"
+  abort "try 'git-site --help' for more information"
 end
 
 conf.repo = Rugged::Repository.discover(conf.repo)
 
 Rack::Server.start(
   app: GitSite::Server.new(conf),
+  server: conf.server,
   Host: conf.host,
   Port: conf.port,
 )
