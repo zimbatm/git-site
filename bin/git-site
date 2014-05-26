@@ -5,7 +5,7 @@ require 'optparse'
 
 require 'rack'
 
-require 'git-site'
+require 'git-site/server'
 
 banner = <<BANNER
 Serves static content from a git repo directly.
@@ -13,17 +13,8 @@ Serves static content from a git repo directly.
 Usage: #{File.basename $0} [options]
 BANNER
 
-DEFAULT = {
-  host: 'localhost',
-  port: 4567,
-  server: nil,
-  repo: ENV['GIT_DIR'] || Dir.pwd,
-  branch: 'master',
-  index: 'index.html',
-}
-
 # Transform into struct
-conf = Struct.new(*DEFAULT.keys).new(*DEFAULT.values)
+conf = GitSite::Server::Config.new
 
 parser = OptionParser.new do |opts|
   opts.banner = banner
@@ -77,7 +68,7 @@ end
 conf.repo = Rugged::Repository.discover(conf.repo)
 
 Rack::Server.start(
-  app: GitSite.new(conf),
-  Port: conf.port,
+  app: GitSite::Server.new(conf),
   Host: conf.host,
+  Port: conf.port,
 )
