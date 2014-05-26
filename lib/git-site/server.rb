@@ -9,10 +9,11 @@ module GitSite
     # Default config
     DEFAULT = {
       # rack config
-      server: nil,
+      server: nil, # type of ruby web server: webrick, thin, puma, ...
       host: 'localhost',
       port: 4567,
 
+      git_path: nil, # where the git executable is located
       repo: ENV['GIT_DIR'] || Dir.pwd,
       branch: 'master',
       index: 'index.html',
@@ -28,10 +29,8 @@ module GitSite
     def initialize(conf)
       @repo = Rugged::Repository.new(conf.repo)
       @grack = Grack::Server.new(
-        #git_path: conf.repo,
+        git_path: conf.git_path,
         project_root: conf.repo,
-        upload_path: true,
-        receive_path: false, # Make that configurable ?
       )
       @index = conf.index
 
